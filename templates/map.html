@@ -29,6 +29,7 @@
                 var searchUrl = "https://www.wikidata.org/wiki/Special:Search?search=" + encodeURIComponent(data[i].locName);
                 popupContent += "<br><a href='" + searchUrl + "' target='_blank'>Search on Wikidata</a>";
             }
+            popupContent += "<br><a href=https: //ebird.org/hotspot/" + data[i].locId + ">View on eBird</a>";
 
             marker.bindPopup(popupContent);
         }
