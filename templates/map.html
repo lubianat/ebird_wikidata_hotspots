@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+</head>
+<body>
+    <div id="mapid" style="height: 500px;"></div>
+    <script>
+        var mymap = L.map('mapid').setView([{{ lat }}, {{ lng }}], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+                '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
+            maxZoom: 18
+        }).addTo(mymap);
+
+        var data = {{ data|tojson }};
+
+        for (var i = 0; i < data.length; i++) {
+            var marker = L.marker([data[i].lat, data[i].lng]).addTo(mymap);
+            var popupContent = "<b>" + data[i].locName + "</b><br>" + data[i].countryCode + "<br>locId: " + data[i].locId;
+
+            if (data[i].wikidata) {
+                popupContent += "<br><a href='" + data[i].wikidata + "' target='_blank'>View on Wikidata</a>";
+            } else {
+                var searchUrl = "https://www.wikidata.org/wiki/Special:Search?search=" + encodeURIComponent(data[i].locName);
+                popupContent += "<br><a href='" + searchUrl + "' target='_blank'>Search on Wikidata</a>";
+            }
+
+            marker.bindPopup(popupContent);
+        }
+    </script>
+</body>
+</html>
