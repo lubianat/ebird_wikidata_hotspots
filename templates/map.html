@@ -5,11 +5,32 @@
     <title>Map</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <style>
+      .leaflet-div-icon {
+          background: transparent;
+          border: none;
+      }
+  </style>
 </head>
 <body>
     <div id="mapid" style="height: 500px;"></div>
     <script>
         var mymap = L.map('mapid').setView([{{ lat }}, {{ lng }}], 13);
+
+        var blueIcon = L.divIcon({
+        className: 'custom-div-icon',
+        html: "<svg xmlns='http://www.w3.org/2000/svg' width='30' height='30'><circle cx='15' cy='15' r='10' stroke='black' stroke-width='2' fill='blue' /></svg>",
+        iconSize: [30, 30],
+        iconAnchor: [15, 15]
+    });
+
+    var redIcon = L.divIcon({
+        className: 'custom-div-icon',
+        html: "<svg xmlns='http://www.w3.org/2000/svg' width='30' height='30'><circle cx='15' cy='15' r='10' stroke='black' stroke-width='2' fill='red' /></svg>",
+        iconSize: [30, 30],
+        iconAnchor: [15, 15]
+    });
+
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
@@ -20,7 +41,9 @@
         var data = {{ data|tojson }};
 
         for (var i = 0; i < data.length; i++) {
-            var marker = L.marker([data[i].lat, data[i].lng]).addTo(mymap);
+            var icon = data[i].wikidata ? blueIcon : redIcon;
+            var marker = L.marker([data[i].lat, data[i].lng], { icon: icon }).addTo(mymap);
+  
             var popupContent = "<b>" + data[i].locName + "</b><br>" + data[i].countryCode + "<br>locId: " + data[i].locId;
 
             if (data[i].wikidata) {
