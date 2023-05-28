@@ -11,11 +11,12 @@ def run_sparql_query(locIDs):
     locIDs_values = " ".join(f'"{id}"' for id in locIDs)
     sparql.setQuery(
         f"""
-        SELECT ?item ?locId
+        SELECT ?item ?locId ?image
         WHERE 
         {{
             VALUES ?locId {{ {locIDs_values} }}
             ?item wdt:P5200 ?locId.
+            OPTIONAL {{ ?item wdt:P18 ?image. }}
         }}
     """
     )
@@ -37,27 +38,35 @@ def map():
     ebird_api_url = f"https://api.ebird.org/v2/ref/hotspot/geo?lat={lat}&lng={lng}&dist={dist}&fmt=json"
     response = requests.get(ebird_api_url)
     data = response.json()
-
     locIDs = [item["locId"] for item in data]
     wikidata_results = run_sparql_query(locIDs)
 
     # create a dictionary for easier access
     wikidata_dict = {
-        result["locId"]["value"]: result["item"]["value"] for result in wikidata_results
+        result["locId"]["value"]: {
+            "wikidata": result["item"]["value"],
+            "image": result.get("image", {}).get("value"),
+        }
+        for result in wikidata_results
     }
 
-    # iterate through the data to add wikidata information
+    # iterate through the data to add Wikidata information
     for item in data:
         if item["locId"] in wikidata_dict:
-            item["wikidata"] = wikidata_dict[item["locId"]]
+            wikidata_info = wikidata_dict[item["locId"]]
+            item["wikidata"] = wikidata_info["wikidata"]
+            item["image"] = wikidata_info["image"] if wikidata_info["image"] else None
         else:
             item["wikidata"] = None
+            item["image"] = None
 
     return render_template("map.html", data=data, lat=lat, lng=lng)
 
-@app.route('/about')
+
+@app.route("/about")
 def about():
-    return render_template('about.html')
-    
+    return render_template("about.html")
+
+
 if __name__ == "__main__":
     app.run(debug=True)
