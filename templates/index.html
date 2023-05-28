@@ -13,6 +13,8 @@
 </head>
 
 <body>
+  {% include '_navbar.html' %}
+
   <div class="container">
     <div class="row">
       <div class="col">
@@ -23,6 +25,8 @@
             <input type="text" id="city" name="city" class="form-control">
             <input type="hidden" id="lat" name="lat">
             <input type="hidden" id="lng" name="lng">
+            <label for="dist">Distance (in km):</label><br>
+            <input type="number" id="dist" name="dist" min="0" max="500" value="25"><br>
           </div>
           <div class="form-group">
             <input type="submit" value="Submit" class="btn btn-primary">

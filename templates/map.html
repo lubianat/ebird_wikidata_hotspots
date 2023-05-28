@@ -11,8 +11,12 @@
           border: none;
       }
   </style>
-</head>
-<body>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  </head>
+  <body>
+
+      {% include '_navbar.html' %}
+
     <div id="mapid" style="height: 500px;"></div>
     <script>
         var mymap = L.map('mapid').setView([{{ lat }}, {{ lng }}], 13);
