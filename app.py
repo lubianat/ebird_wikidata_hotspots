@@ -7,22 +7,32 @@ app = Flask(__name__)
 sparql = SPARQLWrapper("https://query.wikidata.org/sparql")
 
 
+def chunks(lst, n):
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(lst), n):
+        yield lst[i : i + n]
+
+
 def run_sparql_query(locIDs):
-    locIDs_values = " ".join(f'"{id}"' for id in locIDs)
-    sparql.setQuery(
-        f"""
-        SELECT ?item ?locId ?image
-        WHERE 
-        {{
-            VALUES ?locId {{ {locIDs_values} }}
-            ?item wdt:P5200 ?locId.
-            OPTIONAL {{ ?item wdt:P18 ?image. }}
-        }}
-    """
-    )
-    sparql.setReturnFormat(JSON)
-    results = sparql.query().convert()
-    return results["results"]["bindings"]
+    all_results = []
+    for chunk in chunks(locIDs, 400):
+        print(len(chunk))
+        locIDs_values = " ".join(f'"{id}"' for id in chunk)
+        sparql.setQuery(
+            f"""
+            SELECT ?item ?locId ?image
+            WHERE 
+            {{
+                VALUES ?locId {{ {locIDs_values} }}
+                ?item wdt:P5200 ?locId.
+                OPTIONAL {{ ?item wdt:P18 ?image. }}
+            }}
+        """
+        )
+        sparql.setReturnFormat(JSON)
+        results = sparql.query().convert()
+        all_results.extend(results["results"]["bindings"])
+    return all_results
 
 
 @app.route("/")
