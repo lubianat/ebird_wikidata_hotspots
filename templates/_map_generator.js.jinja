@@ -1,33 +1,26 @@
 var mymap = L.map('mapid').setView([{{ lat }}, {{ lng }}], 13);
 
-var blueIcon = L.divIcon({
-className: 'custom-div-icon',
-html: "<svg xmlns='http://www.w3.org/2000/svg' width='30' height='30'><circle cx='15' cy='15' r='10' stroke='black' stroke-width='2' fill='blue' /></svg>",
-iconSize: [30, 30],
-iconAnchor: [15, 15]
+var iconTemplate = (color, strength) => L.divIcon({
+    className: 'custom-div-icon',
+    html: `<svg xmlns='http://www.w3.org/2000/svg' width='30' height='30'><circle cx='15' cy='15' r='10' stroke='black' stroke-width='2' fill='${color}' fill-opacity='${strength}'/></svg>`,
+    iconSize: [30, 30],
+    iconAnchor: [15, 15]
 });
 
-var redIcon = L.divIcon({
-className: 'custom-div-icon',
-html: "<svg xmlns='http://www.w3.org/2000/svg' width='30' height='30'><circle cx='15' cy='15' r='10' stroke='black' stroke-width='2' fill='red' /></svg>",
-iconSize: [30, 30],
-iconAnchor: [15, 15]
-});
+var blueIcons = [
+    iconTemplate('blue', 0.25),
+    iconTemplate('blue', 0.5),
+    iconTemplate('blue', 0.75),
+    iconTemplate('blue', 1)
+];
 
-function convertImageUrl(originalUrl) {
-  var filename = originalUrl.split("/").pop();
-  filename = filename.replace("%20", "_");  // replace spaces with underscores
-  
-  // Split filename into parts for constructing the URL
-  var firstLetter = filename[0];
-  var secondLetter = filename[1];
-  
-  var newUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/" 
-               + firstLetter + "/" + firstLetter + secondLetter + "/" 
-               + filename + "/320px-" + filename;
+var redIcons = [
+    iconTemplate('red', 0.25),
+    iconTemplate('red', 0.5),
+    iconTemplate('red', 0.75),
+    iconTemplate('red', 1)
+];
 
-  return newUrl;
-}
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
@@ -38,7 +31,19 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 var data = {{ data|tojson }};
 
 for (var i = 0; i < data.length; i++) {
-    var icon = data[i].wikidata ? blueIcon : redIcon;
+    var iconIndex;
+    if (data[i].numSpeciesAllTime < 50) {
+        iconIndex = 0;
+    } else if (data[i].numSpeciesAllTime < 100) {
+        iconIndex = 1;
+    } else if (data[i].numSpeciesAllTime < 200) {
+        iconIndex = 2;
+    } else {
+        iconIndex = 3;
+    }
+
+    var icon = data[i].wikidata ? blueIcons[iconIndex] : redIcons[iconIndex];
+
     var marker = L.marker([data[i].lat, data[i].lng], { icon: icon }).addTo(mymap);
 
     var popupContent = "<b>" + data[i].locName + "</b><br>" + data[i].countryCode + "<br>All time species count: " + data[i].numSpeciesAllTime + "<br>locId: " + data[i].locId;
@@ -59,3 +64,33 @@ for (var i = 0; i < data.length; i++) {
 
     marker.bindPopup(popupContent);
 }
+
+
+// Adding legend
+var legend = L.control({ position: 'bottomright' });
+
+legend.onAdd = function (map) {
+    var div = L.DomUtil.create('div', 'info legend');
+    div.style.backgroundColor = 'white';
+    div.style.padding = '10px';
+    div.innerHTML = '<h4>#species</h4>';
+
+    var grades = [0, 50, 100, 200];
+    var strengths = [0.25, 0.5, 0.75, 1];
+    var colors = ['blue', 'red'];
+
+    for (var i = 0; i < grades.length; i++) {
+        div.innerHTML += '<div>';
+        for (var c = 0; c < colors.length; c++) {
+            div.innerHTML +=
+                `<svg xmlns='http://www.w3.org/2000/svg' width='30' height='30' style='margin-right: 5px;'>
+                    <circle cx='15' cy='15' r='10' stroke='black' stroke-width='2' fill='${colors[c]}' fill-opacity='${strengths[i]}'/>
+                </svg>`;
+        }
+        div.innerHTML += `<span>: ${grades[i]} ${(grades[i + 1] ? '&ndash;' + grades[i + 1] : '+')}</span></div>`;
+    }
+    return div;
+};
+
+legend.addTo(mymap);
+
