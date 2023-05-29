@@ -10,6 +10,8 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
   <link rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/jquery.devbridge-autocomplete/1.4.11/jquery.autocomplete.css">
+  <link rel="icon" type="image/png" href="/static/icon.svg" />
+
   <style>
     .autocomplete-suggestions {
       background-color: white;
@@ -40,7 +42,7 @@
         <h1 class="my-4">Select a city</h1>
         <form action="/map" method="get">
           <div class="form-group">
-            <label for="city">City:</label><br>
+            <label for="city">City (select from the autocomplete list):</label><br>
             <input type="text" id="city" name="city" class="form-control">
             <input type="hidden" id="lat" name="lat">
             <input type="hidden" id="lng" name="lng">
@@ -54,6 +56,7 @@
       </div>
     </div>
   </div>
+  {% include '_footer.html' %}
 
   <script src="{{ url_for('static', filename='script.js') }}"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
