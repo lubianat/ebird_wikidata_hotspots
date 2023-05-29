@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Select a city</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.devbridge-autocomplete/1.4.11/jquery.autocomplete.min.js">
+  </script>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/jquery.devbridge-autocomplete/1.4.11/jquery.autocomplete.css">
+  <style>
+    .autocomplete-suggestions {
+      background-color: white;
+      border: 1px solid #ccc;
+      overflow: auto;
+      max-height: 200px;
+      position: absolute;
+      z-index: 9999;
+    }
+
+    .autocomplete-suggestion {
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+
+    .autocomplete-suggestion:hover {
+      background-color: #e6e6e6;
+    }
+  </style>
+</head>
+
+<body>
+  {% include '_navbar.html' %}
+
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <h1 class="my-4">Select a city</h1>
+        <form action="/map" method="get">
+          <div class="form-group">
+            <label for="city">City:</label><br>
+            <input type="text" id="city" name="city" class="form-control">
+            <input type="hidden" id="lat" name="lat">
+            <input type="hidden" id="lng" name="lng">
+            <label for="dist">Search radius (in km):</label><br>
+            <input type="number" id="dist" name="dist" min="0" max="500" value="25"><br>
+          </div>
+          <div class="form-group">
+            <input type="submit" value="Submit" class="btn btn-primary">
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+
+</html>
