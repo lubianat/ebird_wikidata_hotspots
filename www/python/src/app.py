@@ -30,6 +30,7 @@ def run_sparql_query(locIDs):
         """
         )
         sparql.setReturnFormat(JSON)
+        sparql.addCustomHttpHeader("User-Agent", "birdmaps.toolforge.org")
         results = sparql.query().convert()
         all_results.extend(results["results"]["bindings"])
     return all_results
