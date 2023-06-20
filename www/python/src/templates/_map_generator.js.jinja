@@ -1,12 +1,19 @@
+// Create a Leaflet map, with the initial center defined by the lat and lng variables and a zoom level of 13
 var mymap = L.map('mapid').setView([{{ lat }}, {{ lng }}], 13);
 
+// Define a function to create a Leaflet divIcon with a customized appearance
 var iconTemplate = (color, strength, size) => L.divIcon({
+    // CSS class of the icon
     className: 'custom-div-icon',
+    // SVG markup for the icon, which is a colored circle
     html: `<svg xmlns='http://www.w3.org/2000/svg' width='${2 * (size + 2)}' height='${2 * (size + 2)}'><circle cx='${size + 2}' cy='${size + 2}' r='${size}' stroke='black' stroke-width='2' fill='${color}' fill-opacity='${strength}'/></svg>`,
+    // Dimensions of the icon
     iconSize: [2 * (size + 2), 2 * (size + 2)],
+    // Coordinates of the "tip" of the icon (where the marker touches the map)
     iconAnchor: [size + 2, size + 2]
 });
 
+// Array of blue icons with different opacities and sizes
 var blueIcons = [
     iconTemplate('blue', 0.25, 5),
     iconTemplate('blue', 0.5, 7.5),
@@ -14,6 +21,7 @@ var blueIcons = [
     iconTemplate('blue', 1, 15)
 ];
 
+// Array of red icons with different opacities and sizes
 var redIcons = [
     iconTemplate('red', 0.25, 5),
     iconTemplate('red', 0.5, 7.5),
@@ -21,15 +29,21 @@ var redIcons = [
     iconTemplate('red', 1, 15)
 ];
 
+// Load OpenStreetMap tiles into the map
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    // Attribution for the map data
     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
         '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
+    // Maximum zoom level
     maxZoom: 18
 }).addTo(mymap);
 
+// Fetch data from a source and convert it to JSON
 var data = {{ data|tojson }};
 
+// Iterate over the data array
 for (var i = 0; i < data.length; i++) {
+    // Define the index for the icon array based on the number of species
     var iconIndex;
     if (data[i].numSpeciesAllTime < 50) {
         iconIndex = 0;
@@ -41,8 +55,10 @@ for (var i = 0; i < data.length; i++) {
         iconIndex = 3;
     }
 
+    // Choose the appropriate icon based on the wikidata property
     var icon = data[i].wikidata ? blueIcons[iconIndex] : redIcons[iconIndex];
 
+    // Create a marker at the given coordinates with the chosen icon, and add it to the map
     var marker = L.marker([data[i].lat, data[i].lng], { icon: icon }).addTo(mymap);
 
     var popupContent = "<b>" + data[i].locName + "</b><br>" + data[i].countryCode + "<br>All time species count: " + data[i].numSpeciesAllTime + "<br>locId: " + data[i].locId;
